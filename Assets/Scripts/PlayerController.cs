@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 20;
     public float gravity = -9.18f;
     private float airVel;
-    private bool grounded;
+    public bool grounded;
     private float distToGround;
 
     // Start is called before the first frame update
@@ -29,20 +29,21 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        grounded = isGrounded();
+
         // get axis' of movement
         float horiz = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
 
         Vector3 dir = new Vector3(horiz, 0f, vert).normalized;
         dir = transform.TransformDirection(dir);
+        
+        print(rb.velocity.y);
         // move the dir
         if (Mathf.Abs(dir.magnitude) >= 0.1f) {
             FaceCamRelativeDir();
-            rb.velocity = dir*speed;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded()) {
-            Jump();
+            //rb.velocity = dir*speed;
+            rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
         }
     }
 
@@ -72,7 +73,10 @@ public class PlayerController : MonoBehaviour
     }*/
 
 
-    void Jump() {
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    void OnJump() {
+        if (grounded) {
+            print("JUMP");
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        }
     }
 }
