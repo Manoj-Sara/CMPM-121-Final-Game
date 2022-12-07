@@ -13,14 +13,17 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 20;
     public float gravity = -9.18f;
     private float airVel;
-    public bool grounded;
+    private bool grounded;
     private float distToGround;
+    private Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         distToGround = GetComponent<Collider>().bounds.extents.y;
+        anim = transform.Find("robotSphere").GetComponent<Animator>();
+        //transform.Find("Collider").
     }
 
     private Vector3 ProjectPointOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 point) {
@@ -51,9 +54,13 @@ public class PlayerController : MonoBehaviour
         // move the dir
         if (Mathf.Abs(deltaVel.magnitude) >= 0.1f) {
             FaceCamRelativeDir();
+            anim.SetBool("Walk_Anim", true);
             //rb.velocity = dir*speed;
             rb.AddForce(deltaVel, ForceMode.VelocityChange);
             //rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
+        }
+        else {
+            anim.SetBool("Walk_Anim", false);
         }
     }
 
