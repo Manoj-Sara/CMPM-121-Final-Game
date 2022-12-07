@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private float airVel;
     private bool grounded;
     private float distToGround;
+    private bool jumping = false;
     private Animator anim;
 
     // Start is called before the first frame update
@@ -34,7 +35,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // grounded = isGrounded();
+        //grounded = isGrounded();
 
         // get axis' of movement
         float horiz = Input.GetAxis("Horizontal");
@@ -52,9 +53,19 @@ public class PlayerController : MonoBehaviour
         
         //print(rb.velocity.y);
         // move the dir
+        if (!grounded && anim.GetBool("Roll_Anim")) {
+            jumping = true;
+        }
+        else if (jumping && rb.velocity.y <= 0.1 && grounded) {
+            print("landing");
+            anim.SetBool("Roll_Anim", false);
+            jumping = false;
+        }
         if (Mathf.Abs(deltaVel.magnitude) >= 0.1f) {
             FaceCamRelativeDir();
-            anim.SetBool("Walk_Anim", true);
+            if (!anim.GetBool("Roll_Anim")) {
+                anim.SetBool("Walk_Anim", true);
+            }
             //rb.velocity = dir*speed;
             rb.AddForce(deltaVel, ForceMode.VelocityChange);
             //rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
@@ -75,7 +86,7 @@ public class PlayerController : MonoBehaviour
         return Physics.Raycast(transform.position, -transform.up, distToGround+0.1f);
     }
 
-    /*void OnCollisionEnter(Collision obj) {
+    void OnCollisionEnter(Collision obj) {
         if (obj.gameObject.tag == "Ground") {
             print("grounded");
             grounded = true;
@@ -87,14 +98,20 @@ public class PlayerController : MonoBehaviour
             print("in the air");
             grounded = false;
         }
-    }*/
+    }
 
 
     void OnJump() {
-        if (isGrounded()) {
+        if (grounded) {
             print("JUMP");
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-            // rb.velocity = new Vector3(rb.velocity.x, transform.up*jumpForce, rb.velocity.z);
+            if (!anim.GetBool("Roll_Anim")) {
+				anim.SetBool("Roll_Anim", true);
+			}
         }
+    }
+
+    public void Jump() {
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        // jumping = true;
     }
 }
