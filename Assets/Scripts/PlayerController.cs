@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public Transform cam;
     private Rigidbody rb;
     public float speed;
+    public float airSpeed;
     public float jumpForce = 20;
     public float gravity = -9.18f;
     private float airVel;
@@ -49,27 +50,40 @@ public class PlayerController : MonoBehaviour
         deltaVel = deltaVel - vel;
         deltaVel.x = Mathf.Clamp(deltaVel.x, -speed, speed);
         deltaVel.z = Mathf.Clamp(deltaVel.z, -speed, speed);
-        
+
         // deltaVel.y = 0f;
         Vector3 relativeVelocity = Quaternion.Inverse(transform.rotation) * rb.velocity;
-        print(relativeVelocity.y);
-        // move the dir
-        if (!grounded && anim.GetBool("Roll_Anim")) {
+        /*
+            anims:
+                roll_anim: do if space is pressed and grounded and roll_anim = false
+                jump_anim: happens out of exit for roll. Sets jumping to true
+                land_anim: happens when grounded, jumping = true, landing = false, and y_vel < 0.1
+
+        */
+        // know when the player has left into the air
+        if (anim.GetBool("Jumping") && !grounded) {
             jumping = true;
         }
-        else if (jumping && relativeVelocity.y <= 0.1 && grounded) {
-            print("landing");
-            anim.SetBool("Roll_Anim", false);
+        // when the player is landing on the ground
+        else if (jumping && grounded && relativeVelocity.y < 0.1f) {
+            anim.SetBool("Jumping", false);
             jumping = false;
         }
+        // if the player is falling without having jumped
+        else if (!anim.GetBool("Jumping") && !grounded && (relativeVelocity.y > 0.1f || relativeVelocity.y < -0.1f)) {
+            anim.SetBool("Jumping", true);
+            jumping = true;
+        }
+
         if (Mathf.Abs(deltaVel.magnitude) >= 0.1f) {
             FaceCamRelativeDir();
-            if (!anim.GetBool("Roll_Anim")) {
-                anim.SetBool("Walk_Anim", true);
-            }
-            //rb.velocity = dir*speed;
-            rb.AddForce(deltaVel, ForceMode.VelocityChange);
-            //rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
+            Vector3 dir = deltaVel.normalized;
+            // float targetAngle = Mathf.Atan2(dir.x, dir.z)*Mathf.Rad2Deg + cam.eulerAngles
+            anim.SetBool("Walk_Anim", true);
+            if (anim.GetBool("Jumping"))
+                rb.AddForce(deltaVel.normalized*airSpeed);
+            else
+                rb.AddForce(deltaVel, ForceMode.VelocityChange);
         }
         else {
             anim.SetBool("Walk_Anim", false);
@@ -103,11 +117,9 @@ public class PlayerController : MonoBehaviour
 
 
     void OnJump() {
-        if (grounded) {
-            print("JUMP");
-            if (!anim.GetBool("Roll_Anim")) {
-				anim.SetBool("Roll_Anim", true);
-			}
+        if (grounded && !anim.GetBool("Roll_Anim") && !anim.GetBool("Jumping")) {
+            print("Queue Jump");
+			anim.SetBool("Roll_Anim", true);
         }
     }
 
