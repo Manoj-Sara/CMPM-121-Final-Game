@@ -9,10 +9,10 @@ using UnityEngine.UI;
 public class EnemyController : MonoBehaviour
 {
     // stats
-    public float baseChaseSpeed = 8f;
+    public float baseChaseSpeed = 25f;
     public float baseSearchSpeed = 5f;
-    public float detectDist = 8f;
-    public int chaseLevel = 0;
+    public float detectDist = 20f;
+    public int chaseLevel = 20;
 
     private float dist;
     // timers
