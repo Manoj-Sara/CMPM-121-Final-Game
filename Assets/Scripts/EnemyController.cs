@@ -31,11 +31,13 @@ public class EnemyController : MonoBehaviour
     public Transform player;
     public Collider rigidCollider;
     private Rigidbody rb;
+    private Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        anim = GameObject.Find("Stylized Astronaut").GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -66,6 +68,9 @@ public class EnemyController : MonoBehaviour
             chasing = true;
         else {
             float chaseSpeed = baseChaseSpeed*(1f+(chaseLevel*0.1f));
+            if (!anim.GetBool("Running")) {
+                anim.SetBool("Running", true);
+            }
             rb.velocity = transform.forward*chaseSpeed;
             /*transform.position = Vector3.MoveTowards(
                 transform.position, player.position, Time.deltaTime * chaseSpeed
