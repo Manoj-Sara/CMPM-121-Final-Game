@@ -61,7 +61,7 @@ public class EnemyController : MonoBehaviour
     }
 
     private void ChasePlayer() {
-        print("chasing player");
+        //print("chasing player");
         if (!chasing)
             chasing = true;
         else {
@@ -73,7 +73,7 @@ public class EnemyController : MonoBehaviour
             
             chaseTimer += Time.deltaTime;
             if (chaseTimer >= chaseDuration) {
-                print("done chasing");
+                //print("done chasing");
                 chaseCooldown = true;
                 chasing = false;
                 chaseTimer = 0f;

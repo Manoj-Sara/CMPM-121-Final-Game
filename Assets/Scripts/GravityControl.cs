@@ -36,7 +36,7 @@ public class GravityControl : MonoBehaviour
             
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             // set players curr up as a lerp; interpolation from curr Up to new Up
-            rb.AddForce((-gravityUp*gravityObj.gravity)*rb.mass);
+            rb.AddForce((-gravityUp*gravityObj.gravity)*rb.mass, ForceMode.Acceleration);
         }
     }
 

@@ -49,14 +49,15 @@ public class PlayerController : MonoBehaviour
         deltaVel = deltaVel - vel;
         deltaVel.x = Mathf.Clamp(deltaVel.x, -speed, speed);
         deltaVel.z = Mathf.Clamp(deltaVel.z, -speed, speed);
-        // deltaVel.y = 0f;
         
-        //print(rb.velocity.y);
+        // deltaVel.y = 0f;
+        Vector3 relativeVelocity = Quaternion.Inverse(transform.rotation) * rb.velocity;
+        print(relativeVelocity.y);
         // move the dir
         if (!grounded && anim.GetBool("Roll_Anim")) {
             jumping = true;
         }
-        else if (jumping && rb.velocity.y <= 0.1 && grounded) {
+        else if (jumping && relativeVelocity.y <= 0.1 && grounded) {
             print("landing");
             anim.SetBool("Roll_Anim", false);
             jumping = false;
