@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Cinemachine;
 
 public class PlayerController : MonoBehaviour
@@ -29,21 +31,29 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        grounded = isGrounded();
+        // grounded = isGrounded();
 
         // get axis' of movement
         float horiz = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
 
-        Vector3 dir = new Vector3(horiz, 0f, vert).normalized;
-        dir = transform.TransformDirection(dir);
+        Vector3 deltaVel = new Vector3(horiz, 0f, vert).normalized;
+        deltaVel = transform.TransformDirection(deltaVel);
+        deltaVel *= speed;
+
+        Vector3 vel = rb.velocity;
+        deltaVel = deltaVel - vel;
+        deltaVel.x = Mathf.Clamp(deltaVel.x, -speed, speed);
+        deltaVel.z = Mathf.Clamp(deltaVel.z, -speed, speed);
+        // deltaVel.y = 0f;
         
-        print(rb.velocity.y);
+        //print(rb.velocity.y);
         // move the dir
-        if (Mathf.Abs(dir.magnitude) >= 0.1f) {
+        if (Mathf.Abs(deltaVel.magnitude) >= 0.1f) {
             FaceCamRelativeDir();
             //rb.velocity = dir*speed;
-            rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
+            rb.AddForce(deltaVel, ForceMode.VelocityChange);
+            //rb.velocity = new Vector3(dir.x*speed, rb.velocity.y + dir.y*speed, dir.z*speed);
         }
     }
 
@@ -74,9 +84,10 @@ public class PlayerController : MonoBehaviour
 
 
     void OnJump() {
-        if (grounded) {
+        if (isGrounded()) {
             print("JUMP");
             rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+            // rb.velocity = new Vector3(rb.velocity.x, transform.up*jumpForce, rb.velocity.z);
         }
     }
 }
