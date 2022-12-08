@@ -18,8 +18,8 @@ public class PlayerController : MonoBehaviour
     private float distToGround;
     private bool jumping = false;
     private Animator anim;
-    public AudioSource walkSfx;
-    public AudioSource spinSfx;
+    private AudioSource walkSfx;
+    private AudioSource spinSfx;
 
     private EnemyController enemyScript;
 
@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         distToGround = GetComponent<Collider>().bounds.extents.y;
         anim = transform.Find("robotSphere").GetComponent<Animator>();
+        walkSfx = GameObject.Find("WalkSfx").GetComponent<AudioSource>();
+        spinSfx = GameObject.Find("SpinSfx").GetComponent<AudioSource>();
         //transform.Find("Collider").
     }
 
