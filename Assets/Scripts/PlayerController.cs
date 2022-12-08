@@ -147,6 +147,11 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+
+        if (obj.gameObject.tag == "Spaceship") {
+            print("YOU WIN!");
+            Win();
+        }
     }
 
     void OnCollisionExit(Collision obj) {
@@ -169,12 +174,15 @@ public class PlayerController : MonoBehaviour
         // jumping = true;
     }
 
-    public void Lose()
-    {
+    public void Lose() {
         // deathSfx.PlayOneShot(deathSfx.clip, eventVolume);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void Win() {
+        // winSfx.PlayOneShot(winSfx.clip, eventVolume);
+    }
+    
     public void PlaySpinSfx() {
         spinSfx.Play();
     }
