@@ -13,12 +13,13 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float airSpeed;
     public float jumpForce = 20;
-    public float gravity = -9.18f;
     private float airVel;
     private bool grounded;
     private float distToGround;
     private bool jumping = false;
     private Animator anim;
+    public AudioSource walkSfx;
+    public AudioSource spinSfx;
 
     private EnemyController enemyScript;
 
@@ -40,7 +41,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         //grounded = isGrounded();
-
+        if (anim.GetBool("InitAnim")) return;
         // get axis' of movement
         float horiz = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
@@ -63,6 +64,21 @@ public class PlayerController : MonoBehaviour
                 land_anim: happens when grounded, jumping = true, landing = false, and y_vel < 0.1
 
         */
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("anim_Walk_Loop")) {
+            if (!walkSfx.isPlaying) {
+                walkSfx.Play();
+            }
+        }
+        /*else if (anim.GetCurrentAnimatorStateInfo(0).IsName("anim_open_GoToRoll")) {
+            if (!spinSfx.isPlaying)
+                spinSfx.Play();
+            if (walkSfx.isPlaying)
+                walkSfx.Stop();
+        }*/
+        else {
+            if (walkSfx.isPlaying)
+                walkSfx.Stop();
+        }
         // know when the player has left into the air
         if (anim.GetBool("Jumping") && !grounded) {
             jumping = true;
@@ -83,12 +99,20 @@ public class PlayerController : MonoBehaviour
             Vector3 dir = deltaVel.normalized;
             // float targetAngle = Mathf.Atan2(dir.x, dir.z)*Mathf.Rad2Deg + cam.eulerAngles
             anim.SetBool("Walk_Anim", true);
-            if (anim.GetBool("Jumping"))
+            if (anim.GetBool("Jumping")) {
+                if (walkSfx.isPlaying)
+                    walkSfx.Stop();
                 rb.AddForce(deltaVel.normalized*airSpeed);
-            else
+            }
+            else {
+                //if (!walkSfx.isPlaying)
+                //    walkSfx.Play();
                 rb.AddForce(deltaVel, ForceMode.VelocityChange);
+            }
         }
         else {
+            if (walkSfx.isPlaying)
+                walkSfx.Stop();
             anim.SetBool("Walk_Anim", false);
         }
     }
@@ -157,5 +181,9 @@ public class PlayerController : MonoBehaviour
 
     public void Win() {
         // winSfx.PlayOneShot(winSfx.clip, eventVolume);
+    }
+    
+    public void PlaySpinSfx() {
+        spinSfx.Play();
     }
 }
