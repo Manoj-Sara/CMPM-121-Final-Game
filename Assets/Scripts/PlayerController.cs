@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private AudioSource walkSfx;
     private AudioSource spinSfx;
+    public GameObject dustCloud;
 
     private EnemyController enemyScript;
 
@@ -134,6 +135,12 @@ public class PlayerController : MonoBehaviour
         if (obj.gameObject.tag == "Ground") {
             print("grounded");
             grounded = true;
+            // Instantiate(dustCloud, transform.position, dustCloud.transform.rotation);
+            // dustCloud.Play();
+            // dustCloud.emission.enabled = true;
+            GetComponent <ParticleSystem>().Play ();
+            ParticleSystem.EmissionModule em = GetComponent<ParticleSystem>().emission;
+            em.enabled = true;
         }
 
         if (obj.gameObject.tag == "Enemy")
@@ -184,7 +191,7 @@ public class PlayerController : MonoBehaviour
     public void Win() {
         // winSfx.PlayOneShot(winSfx.clip, eventVolume);
     }
-    
+
     public void PlaySpinSfx() {
         spinSfx.Play();
     }
