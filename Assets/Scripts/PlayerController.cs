@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using Cinemachine;
 
 public class PlayerController : MonoBehaviour
@@ -18,6 +19,8 @@ public class PlayerController : MonoBehaviour
     private float distToGround;
     private bool jumping = false;
     private Animator anim;
+
+    private EnemyController enemyScript;
 
     // Start is called before the first frame update
     void Start()
@@ -106,6 +109,20 @@ public class PlayerController : MonoBehaviour
             print("grounded");
             grounded = true;
         }
+
+        if (obj.gameObject.tag == "Enemy")
+        {
+            enemyScript = obj.gameObject.GetComponent<EnemyController>();
+            if (!enemyScript.stunned) {
+                if (jumping) {
+                    enemyScript.Stun();
+                }
+                else {
+                    print("GAME OVER");
+                    Lose();
+                }
+            }
+        }
     }
 
     void OnCollisionExit(Collision obj) {
@@ -126,5 +143,11 @@ public class PlayerController : MonoBehaviour
     public void Jump() {
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
         // jumping = true;
+    }
+
+    public void Lose()
+    {
+        // deathSfx.PlayOneShot(deathSfx.clip, eventVolume);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
