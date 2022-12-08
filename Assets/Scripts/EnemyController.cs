@@ -9,35 +9,32 @@ using UnityEngine.UI;
 public class EnemyController : MonoBehaviour
 {
     // stats
-    public float baseChaseSpeed = 25f;
+    public float chaseSpeed = 10f;
     public float detectDist = 20f;
-    public int chaseLevel = 20;
+    private float chatterDist = 30f;
     public bool stunned = false;
 
     private float dist;
     // timers
     public bool chasing = false;
-    private float chaseDuration = 10f;
-    private float chaseTimer = 0f;
     private float stunTime = 5f;
-
-    public bool chaseCooldown = false;
-    private float chaseCooldownDuration = 5f;
-    private float chaseCooldownTimer = 0f;
 
     private Vector3 dir;
 
     // obj vars
-    public Transform player;
+    private Transform player;
     public Collider rigidCollider;
     private Rigidbody rb;
     private Animator anim;
+    private AudioSource chatterSfx;
 
     // Start is called before the first frame update
     void Start()
     {
+        player = GameObject.Find("Player").transform;
         rb = GetComponent<Rigidbody>();
         anim = GameObject.Find("Stylized Astronaut").GetComponent<Animator>();
+        chatterSfx = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -52,13 +49,25 @@ public class EnemyController : MonoBehaviour
         dir = (player.position - transform.position).normalized;
         Vector3 pos = ProjectPointOnPlane(transform.up, transform.position, player.position);
         transform.LookAt(pos, transform.up);
-
-        if (dist <= detectDist*(1+chaseLevel*0.2) && !chaseCooldown) {
+        
+        // peekabooSfx.volume = ((peekabooDist-dist)/dist)+0.3f;
+        if (dist <= chatterDist) {
+            if (!chatterSfx.isPlaying) {
+                chatterSfx.Play();
+            }
+            chatterSfx.volume = (chatterDist-dist)/dist+0.2f;
+        }
+        else {
+            if (chatterSfx.isPlaying) {
+                chatterSfx.Stop();
+            }
+        }
+        if (dist <= detectDist) {
             ChasePlayer();
         }
-        // else {
-        //     SearchPlayer();
-        // }
+        else {
+            chasing = false;
+        }
     }
 
     private Vector3 ProjectPointOnPlane(Vector3 planeNormal, Vector3 planePoint, Vector3 point) {
@@ -72,7 +81,6 @@ public class EnemyController : MonoBehaviour
         if (!chasing)
             chasing = true;
         else {
-            float chaseSpeed = baseChaseSpeed*(1f+(chaseLevel*0.1f));
             if (!anim.GetBool("Running")) {
                 anim.SetBool("Running", true);
             }
@@ -80,15 +88,6 @@ public class EnemyController : MonoBehaviour
             /*transform.position = Vector3.MoveTowards(
                 transform.position, player.position, Time.deltaTime * chaseSpeed
             );*/
-            
-            chaseTimer += Time.deltaTime;
-            if (chaseTimer >= chaseDuration) {
-                //print("done chasing");
-                chaseCooldown = true;
-                chasing = false;
-                chaseTimer = 0f;
-                chaseCooldown = true;
-            }
         }
     }
 
